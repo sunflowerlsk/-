@@ -117,17 +117,7 @@ int main(int argc, char** argv)
             FONT_HERSHEY_SIMPLEX, 0.6, Scalar(0, 255, 255), 2);
     }
 
-    // 5. 保存结果
-    imwrite(outputPrefix + "_binary.png", binary);
-    imwrite(outputPrefix + "_clean_binary.png", clean);
-    imwrite(outputPrefix + "_labels.png", coloredLabels);
-    imwrite(outputPrefix + "_components_mask.png", acceptedMask);
-    imwrite(outputPrefix + "_result.png", result);
-
-    cout << "Otsu threshold: " << thresholdValue << endl;
-    cout << "Coins found: " << found << endl;
-
-    // 6. 显示完整中间过程
+    // 5. 显示完整中间过程
     imshow("0 - Source", src);
     imshow("1 - Gray", gray);
     imshow("2 - Gaussian Blur", blurred);
