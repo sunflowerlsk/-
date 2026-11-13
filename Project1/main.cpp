@@ -6,7 +6,7 @@
 using namespace cv;
 using namespace std;
 
-// Ìî³äÁ¬Í¨ÓòÄÚ²¿¿×¶´
+// å¡«å……è¿é€šåŸŸå†…éƒ¨å­”æ´
 static void fillHoles(Mat& mask)
 {
     vector<vector<Point>> contours;
@@ -16,8 +16,8 @@ static void fillHoles(Mat& mask)
 
 int main(int argc, char** argv)
 {
-    // Ä¬ÈÏ¶ÁÈ¡ÏîÄ¿Ä¿Â¼ÏÂµÄ test1.jpg£¬Ò²¿É´ÓÃüÁîĞĞ´«Èë
-    const string inputPath = (argc > 1) ? argv[1] : "B:/Cyuyan/»úÆ÷ÊÓ¾õ/Project1/test1.jpg";
+    // é»˜è®¤è¯»å–é¡¹ç›®ç›®å½•ä¸‹çš„ test1.jpgï¼Œä¹Ÿå¯ä»å‘½ä»¤è¡Œä¼ å…¥
+    const string inputPath = (argc > 1) ? argv[1] : "B:/Cyuyan/æœºå™¨è§†è§‰/Project1/test1.jpg";
 
     Mat src = imread(inputPath, IMREAD_COLOR);
     if (src.empty()) {
@@ -25,23 +25,23 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    // 1. »Ò¶È»¯ºÍ¸ßË¹ÂË²¨
+    // 1. ç°åº¦åŒ–å’Œé«˜æ–¯æ»¤æ³¢
     Mat gray, blurred;
     cvtColor(src, gray, COLOR_BGR2GRAY);
     GaussianBlur(gray, blurred, Size(5, 5), 0);
 
-    // 2. »ØĞÎÕëÊÇ°µÄ¿±ê£¬Ê¹ÓÃ·´Ïà Otsu
+    // 2. å›å½¢é’ˆæ˜¯æš—ç›®æ ‡ï¼Œä½¿ç”¨åç›¸ Otsu
     Mat binary;
     double thresholdValue = threshold(
         blurred, binary, 0, 255, THRESH_BINARY_INV | THRESH_OTSU);
 
-    // 3. ¿ªÔËËãÈ¥Ôë£¬±ÕÔËËãÁ¬½ÓÏ¸Ğ¡È±¿Ú
+    // 3. å¼€è¿ç®—å»å™ªï¼Œé—­è¿ç®—è¿æ¥ç»†å°ç¼ºå£
     Mat clean, kernel = getStructuringElement(MORPH_ELLIPSE, Size(5, 5));
     morphologyEx(binary, clean, MORPH_OPEN, kernel);
     morphologyEx(clean, clean, MORPH_CLOSE, kernel);
     fillHoles(clean);
 
-    // 4. Á¬Í¨Óò±ê¼Ç
+    // 4. è¿é€šåŸŸæ ‡è®°
     Mat labels, stats, centroids;
     int labelCount = connectedComponentsWithStats(
         clean, labels, stats, centroids, 8, CV_32S);
@@ -59,7 +59,7 @@ int main(int argc, char** argv)
         int w = stats.at<int>(i, CC_STAT_WIDTH);
         int h = stats.at<int>(i, CC_STAT_HEIGHT);
 
-        // ¹ıÂËĞ¡ÔëµãºÍ½Ó´¥Í¼Ïñ±ß½çµÄ°×±ß
+        // è¿‡æ»¤å°å™ªç‚¹å’Œæ¥è§¦å›¾åƒè¾¹ç•Œçš„ç™½è¾¹
         bool touchesBorder = x <= 0 || y <= 0 ||
             x + w >= src.cols || y + h >= src.rows;
         if (area < minArea || touchesBorder) {
@@ -68,11 +68,11 @@ int main(int argc, char** argv)
 
         ++found;
 
-        // ÌáÈ¡µ±Ç°»ØĞÎÕëµÄÑÚÄ¤
+        // æå–å½“å‰å›å½¢é’ˆçš„æ©è†œ
         Mat clipMask;
         compare(labels, i, clipMask, CMP_EQ);
 
-        // ¸øÃ¿¸ö»ØĞÎÕëÌî²»Í¬ÑÕÉ«
+        // ç»™æ¯ä¸ªå›å½¢é’ˆå¡«ä¸åŒé¢œè‰²
         RNG rng(i * 7919 + 12345);
         Vec3b color(
             static_cast<uchar>(rng.uniform(50, 256)),
@@ -81,11 +81,11 @@ int main(int argc, char** argv)
 
         coloredLabels.setTo(color, clipMask);
 
-        // »æÖÆÍâ½Ó¾ØĞÎ
+        // ç»˜åˆ¶å¤–æ¥çŸ©å½¢
         Rect box(x, y, w, h);
         rectangle(result, box, Scalar(0, 255, 0), 2);
 
-        // Ê¹ÓÃÄâºÏÍÖÔ²ÖĞĞÄ×÷Îª»ØĞÎÕëÖĞĞÄ
+        // ä½¿ç”¨æ‹Ÿåˆæ¤­åœ†ä¸­å¿ƒä½œä¸ºå›å½¢é’ˆä¸­å¿ƒ
         Point2f center(x + w * 0.5f, y + h * 0.5f);
         vector<vector<Point>> contours;
         findContours(clipMask.clone(), contours,
@@ -105,7 +105,7 @@ int main(int argc, char** argv)
         drawMarker(result, center, Scalar(0, 0, 255),
             MARKER_CROSS, 12, 2, LINE_AA);
 
-        // »æÖÆ±àºÅ
+        // ç»˜åˆ¶ç¼–å·
         string id = to_string(found);
         putText(result, id, Point(x, max(y - 8, 18)),
             FONT_HERSHEY_SIMPLEX, 0.6, Scalar(0, 0, 0), 3);
@@ -116,7 +116,7 @@ int main(int argc, char** argv)
     cout << "Otsu threshold: " << thresholdValue << endl;
     cout << "Paperclips found: " << found << endl;
 
-    // 5. ÏÔÊ¾ÖĞ¼ä¹ı³ÌºÍ×îÖÕ½á¹û£¬²»±£´æÍ¼Æ¬
+    // 5. æ˜¾ç¤ºä¸­é—´è¿‡ç¨‹å’Œæœ€ç»ˆç»“æœ
     imshow("0 - Source", src);
     imshow("1 - Gray", gray);
     imshow("2 - Gaussian Blur", blurred);
