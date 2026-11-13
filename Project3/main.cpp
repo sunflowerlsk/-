@@ -6,9 +6,9 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-    // Ä¬ÈÏÍ¼Æ¬Â·¾¶£¬Ò²¿ÉÒÔ´ÓÃüÁîĞĞ´«Èë
+    // é»˜è®¤å›¾ç‰‡è·¯å¾„ï¼Œä¹Ÿå¯ä»¥ä»å‘½ä»¤è¡Œä¼ å…¥
     const string path = (argc > 1) ? argv[1]
-        : "B:/Cyuyan/»úÆ÷ÊÓ¾õ/Project3/test3.jpg";
+        : "B:/Cyuyan/æœºå™¨è§†è§‰/Project3/test3.jpg";
 
     Mat src = imread(path, IMREAD_COLOR);
     if (src.empty()) {
@@ -16,31 +16,31 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    // 1. »Ò¶È»¯
+    // 1. ç°åº¦åŒ–
     Mat gray;
     cvtColor(src, gray, COLOR_BGR2GRAY);
 
-    // 2. ¸ßË¹ÂË²¨£¬¼õÉÙÔëÉù
+    // 2. é«˜æ–¯æ»¤æ³¢ï¼Œå‡å°‘å™ªå£°
     Mat blurred;
     GaussianBlur(gray, blurred, Size(5, 5), 0);
 
-    // 3. ¿×ÊÇ°µÄ¿±ê£¬Ê¹ÓÃ·´Ïà Otsu ¶şÖµ»¯
+    // 3. å­”æ˜¯æš—ç›®æ ‡ï¼Œä½¿ç”¨åç›¸ Otsu äºŒå€¼åŒ–
     Mat binary;
     threshold(blurred, binary, 0, 255,
         THRESH_BINARY_INV | THRESH_OTSU);
 
-    // 4. Á¬Í¨Óò±ê¼Ç
+    // 4. è¿é€šåŸŸæ ‡è®°
     Mat labels, stats, centroids;
     int labelCount = connectedComponentsWithStats(
         binary, labels, stats, centroids, 8, CV_32S);
 
-    // ²ÊÉ«Á¬Í¨ÓòÍ¼ºÍ×îÖÕ½á¹ûÍ¼
+    // å½©è‰²è¿é€šåŸŸå›¾å’Œæœ€ç»ˆç»“æœå›¾
     Mat coloredLabels = Mat::zeros(src.size(), CV_8UC3);
     Mat result = src.clone();
 
     int found = 0;
 
-    // ¸ù¾İÍ¼ÏñÃæ»ıÉèÖÃ¿×µÄÃæ»ı·¶Î§
+    // æ ¹æ®å›¾åƒé¢ç§¯è®¾ç½®å­”çš„é¢ç§¯èŒƒå›´
     const int minArea = static_cast<int>(src.total() * 0.002);
     const int maxArea = static_cast<int>(src.total() * 0.020);
 
@@ -51,7 +51,7 @@ int main(int argc, char** argv)
         int w = stats.at<int>(i, CC_STAT_WIDTH);
         int h = stats.at<int>(i, CC_STAT_HEIGHT);
 
-        // Ö»±£ÁôÍêÕû¡¢Î»ÓÚÓÒ²à¡¢Ãæ»ıºÏÊÊµÄ¿×
+        // åªä¿ç•™å®Œæ•´ã€ä½äºå³ä¾§ã€é¢ç§¯åˆé€‚çš„å­”
         bool complete = x > 0 && y > 0 &&
             x + w < src.cols && y + h < src.rows;
         bool onRight = centroids.at<double>(i, 0) > src.cols * 0.40;
@@ -63,7 +63,7 @@ int main(int argc, char** argv)
 
         ++found;
 
-        // ÌáÈ¡µ±Ç°¿×µÄÑÚÄ¤²¢Ìî³äÑÕÉ«
+        // æå–å½“å‰å­”çš„æ©è†œå¹¶å¡«å……é¢œè‰²
         Mat holeMask;
         compare(labels, i, holeMask, CMP_EQ);
 
@@ -75,7 +75,7 @@ int main(int argc, char** argv)
 
         coloredLabels.setTo(color, holeMask);
 
-        // »æÖÆÍâ½ÓÔ²¡¢ÖĞĞÄµãºÍ±àºÅ
+        // ç»˜åˆ¶å¤–æ¥åœ†ã€ä¸­å¿ƒç‚¹å’Œç¼–å·
         Point center(
             cvRound(centroids.at<double>(i, 0)),
             cvRound(centroids.at<double>(i, 1)));
@@ -96,7 +96,7 @@ int main(int argc, char** argv)
 
     cout << "Complete holes found: " << found << endl;
 
-    // 5. ÏÔÊ¾ÖĞ¼ä¹ı³ÌºÍ×îÖÕ½á¹û£¬²»±£´æÍ¼Æ¬
+    // 5. æ˜¾ç¤ºä¸­é—´è¿‡ç¨‹å’Œæœ€ç»ˆç»“æœ
     imshow("0 - Source", src);
     imshow("1 - Gray", gray);
     imshow("2 - Gaussian Blur", blurred);
