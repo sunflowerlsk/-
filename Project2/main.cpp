@@ -6,7 +6,7 @@
 using namespace cv;
 using namespace std;
 
-// Ìî³äÁ¬Í¨ÓòÄÚ²¿¿×¶´
+// å¡«å……è¿é€šåŸŸå†…éƒ¨å­”æ´
 static void fillHoles(Mat& mask)
 {
     vector<vector<Point>> contours;
@@ -16,8 +16,8 @@ static void fillHoles(Mat& mask)
 
 int main(int argc, char** argv)
 {
-    // Ä¬ÈÏ¶ÁÈ¡ÏîÄ¿Ä¿Â¼ÏÂµÄ test2.jpg£¬Ò²¿ÉÒÔ´ÓÃüÁîĞĞ´«ÈëÂ·¾¶
-    const string inputPath = (argc > 1) ? argv[1] : "B:/Cyuyan/»úÆ÷ÊÓ¾õ/Project2/test2.jpg";
+    // é»˜è®¤è¯»å–é¡¹ç›®ç›®å½•ä¸‹çš„ test2.jpgï¼Œä¹Ÿå¯ä»¥ä»å‘½ä»¤è¡Œä¼ å…¥è·¯å¾„
+    const string inputPath = (argc > 1) ? argv[1] : "B:/Cyuyan/æœºå™¨è§†è§‰/Project2/test2.jpg";
     const string outputPrefix =
         (argc > 2) ? argv[2] : "C:/Users/ASUS/Desktop/coin_result";
 
@@ -27,23 +27,23 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    // 1. »Ò¶È»¯²¢ÂË²¨
+    // 1. ç°åº¦åŒ–å¹¶æ»¤æ³¢
     Mat gray, blurred;
     cvtColor(src, gray, COLOR_BGR2GRAY);
     GaussianBlur(gray, blurred, Size(5, 5), 0);
 
-    // 2. Ó²±ÒÊÇÁÁÄ¿±ê£¬Ö±½ÓÊ¹ÓÃÕıÏò Otsu
+    // 2. ç¡¬å¸æ˜¯äº®ç›®æ ‡ï¼Œç›´æ¥ä½¿ç”¨æ­£å‘ Otsu
     Mat binary;
     double thresholdValue = threshold(
         blurred, binary, 0, 255, THRESH_BINARY | THRESH_OTSU);
 
-    // 3. ±ÕÔËËãÁ¬½ÓÈ±¿Ú£¬¿ªÔËËãÈ¥µôĞ¡Ôëµã
+    // 3. é—­è¿ç®—è¿æ¥ç¼ºå£ï¼Œå¼€è¿ç®—å»æ‰å°å™ªç‚¹
     Mat clean, kernel = getStructuringElement(MORPH_ELLIPSE, Size(3, 3));
     morphologyEx(binary, clean, MORPH_CLOSE, kernel);
     morphologyEx(clean, clean, MORPH_OPEN, kernel);
     fillHoles(clean);
 
-    // 4. Á¬Í¨Óò±ê¼Ç
+    // 4. è¿é€šåŸŸæ ‡è®°
     Mat labels, stats, centroids;
     int labelCount = connectedComponentsWithStats(
         clean, labels, stats, centroids, 8, CV_32S);
@@ -62,7 +62,7 @@ int main(int argc, char** argv)
         int w = stats.at<int>(i, CC_STAT_WIDTH);
         int h = stats.at<int>(i, CC_STAT_HEIGHT);
 
-        // ¹ıÂËĞ¡ÔëµãºÍ½Ó´¥Í¼Ïñ±ß½çµÄ°×±ß
+        // è¿‡æ»¤å°å™ªç‚¹å’Œæ¥è§¦å›¾åƒè¾¹ç•Œçš„ç™½è¾¹
         bool touchesBorder = x <= 0 || y <= 0 ||
             x + w >= src.cols || y + h >= src.rows;
         if (area < minArea || touchesBorder) {
@@ -71,11 +71,11 @@ int main(int argc, char** argv)
 
         ++found;
 
-        // ÌáÈ¡µ±Ç°Ó²±ÒµÄÑÚÄ¤
+        // æå–å½“å‰ç¡¬å¸çš„æ©è†œ
         Mat coinMask;
         compare(labels, i, coinMask, CMP_EQ);
 
-        // ¸øÃ¿¸öÓ²±ÒÌî²»Í¬ÑÕÉ«
+        // ç»™æ¯ä¸ªç¡¬å¸å¡«ä¸åŒé¢œè‰²
         RNG rng(i * 7919 + 12345);
         Vec3b color(
             static_cast<uchar>(rng.uniform(50, 256)),
@@ -85,11 +85,11 @@ int main(int argc, char** argv)
         coloredLabels.setTo(color, coinMask);
         acceptedMask.setTo(255, coinMask);
 
-        // »æÖÆÍâ½Ó¾ØĞÎ
+        // ç»˜åˆ¶å¤–æ¥çŸ©å½¢
         Rect box(x, y, w, h);
         rectangle(result, box, Scalar(0, 255, 0), 2);
 
-        // ÓÃÄâºÏÍÖÔ²ÖĞĞÄ×÷ÎªÓ²±ÒÖĞĞÄ
+        // ç”¨æ‹Ÿåˆæ¤­åœ†ä¸­å¿ƒä½œä¸ºç¡¬å¸ä¸­å¿ƒ
         Point2f center(x + w * 0.5f, y + h * 0.5f);
         vector<vector<Point>> contours;
         findContours(coinMask.clone(), contours,
@@ -109,7 +109,7 @@ int main(int argc, char** argv)
         drawMarker(result, center, Scalar(0, 0, 255),
             MARKER_CROSS, 12, 2, LINE_AA);
 
-        // »æÖÆ±àºÅ
+        // ç»˜åˆ¶ç¼–å·
         string id = to_string(found);
         putText(result, id, Point(x, max(y - 8, 18)),
             FONT_HERSHEY_SIMPLEX, 0.6, Scalar(0, 0, 0), 3);
@@ -117,7 +117,7 @@ int main(int argc, char** argv)
             FONT_HERSHEY_SIMPLEX, 0.6, Scalar(0, 255, 255), 2);
     }
 
-    // 5. ±£´æ½á¹û
+    // 5. ä¿å­˜ç»“æœ
     imwrite(outputPrefix + "_binary.png", binary);
     imwrite(outputPrefix + "_clean_binary.png", clean);
     imwrite(outputPrefix + "_labels.png", coloredLabels);
@@ -127,7 +127,7 @@ int main(int argc, char** argv)
     cout << "Otsu threshold: " << thresholdValue << endl;
     cout << "Coins found: " << found << endl;
 
-    // 6. ÏÔÊ¾ÍêÕûÖĞ¼ä¹ı³Ì
+    // 6. æ˜¾ç¤ºå®Œæ•´ä¸­é—´è¿‡ç¨‹
     imshow("0 - Source", src);
     imshow("1 - Gray", gray);
     imshow("2 - Gaussian Blur", blurred);
